@@ -7,8 +7,9 @@ const users = [
 
 const server = http.createServer((req, res) => {
   // create user
-  if (method === "POST" && url === "/users") {
+  if (req.method === "POST" && req.url === "/users") {
     let body = "";
+
     req.on("data", (chunk) => {
       body += chunk;
     });
@@ -19,16 +20,16 @@ const server = http.createServer((req, res) => {
     res.writeHead(201);
   }
   // get all users
-  else if (method === "GET" && url === "/users") {
+  else if (req.method === "GET" && req.url === "/users") {
     res.writeHead(200, { "content-type": "application/json" });
     res.write(JSON.stringify(users));
   }
   // get a single user by name
-  else if (method === "GET" && url.startsWith("/users/")) {
+  else if (req.method === "GET" && req.url.startsWith("/users/")) {
     // /users/eyad
     //   0      1
     /// ["", "eyad"]
-    const userName = url.split("/users/")[1];
+    const userName = req.url.split("/users/")[1];
     const user = users.find((u) => u.name === userName);
     if (user) {
       res.writeHead(200, { "content-type": "application/json" });
@@ -40,18 +41,16 @@ const server = http.createServer((req, res) => {
   }
   // update user by name (PATCH/PUT)
   else if (
-    (method === "PATCH" || method === "PUT") &&
-    url.startsWith("/users/")
+    (req.method === "PATCH" || req.method === "PUT") &&
+    req.url.startsWith("/users/")
   ) {
-    const userName = url.split("/users/")[1];
+    const userName = req.url.split("/users/")[1];
     const userIndex = users.findIndex((u) => u.name === userName);
-
     if (userIndex === -1) {
       res.writeHead(404, { "content-type": "application/json" });
       res.write(JSON.stringify({ error: `user ${userName} not found` }));
       return;
     }
-
     let body = "";
     req.on("data", (chunk) => {
       body += chunk;
@@ -64,8 +63,8 @@ const server = http.createServer((req, res) => {
     });
   }
   // delete user by name
-  else if (method === "DELETE" && url.startsWith("/users/")) {
-    const userName = url.split("/users/")[1];
+  else if (req.method === "DELETE" && req.url.startsWith("/users/")) {
+    const userName = req.url.split("/users/")[1];
     const userIndex = users.findIndex((u) => u.name === userName);
     if (userIndex === -1) {
       res.writeHead(404, { "content-type": "application/json" });
@@ -81,8 +80,8 @@ const server = http.createServer((req, res) => {
     res.writeHead(404, { "content-type": "application/json" });
     res.write(JSON.stringify({ error: "not found" }));
   }
+  res.end();
 });
-res.end();
 server.listen(3000, () => {
   console.log("server started on port 3000");
 });
