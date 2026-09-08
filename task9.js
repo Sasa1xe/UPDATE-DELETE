@@ -1,15 +1,12 @@
 import http from "node:http";
-
 const users = [
   { name: "eyad", age: 20 },
   { name: "ahmed", age: 18 },
 ];
-
 const server = http.createServer((req, res) => {
   // create user
   if (req.method === "POST" && req.url === "/users") {
     let body = "";
-
     req.on("data", (chunk) => {
       body += chunk;
     });
